@@ -1,0 +1,14 @@
+{
+    "name": "weblablv/proxy-service-client",
+    "description": "",
+    "type": "library",
+    "license": "",
+    "autoload": {
+        "psr-4": {
+            "WebLabLv\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^7.0"
+    }
+}
