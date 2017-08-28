@@ -2,6 +2,9 @@
 
 namespace WebLabLv\ProxyService;
 
+use GuzzleHttp\Client;
+use InvalidArgumentException;
+
 class ProxyServiceClient
 {
     /**
@@ -12,13 +15,19 @@ class ProxyServiceClient
      * @var string $url
      */
     private $url;
+    /**
+     * @var Client $httpClient
+     */
+    private $httpClient;
 
     /**
      * @param string $url
+     * @param array  $httpClientConfig
      */
-    public function __construct(string $url)
+    public function __construct(string $url, array $httpClientConfig = [])
     {
-        $this->url = $url;
+        $this->url        = $url;
+        $this->httpClient = new Client($httpClientConfig);
     }
 
     /**
@@ -35,18 +44,19 @@ class ProxyServiceClient
      */
     public function getProxy(): string
     {
-        if (null === $this->proxy) {
-            $this->setProxy();
-        }
-
+        null === $this->proxy && $this->setProxy();
         return $this->proxy;
     }
 
 
+    /**
+     * @throws InvalidArgumentException if response content is not valid json
+     */
     private function setProxy()
     {
-        $this->proxy = json_decode(
-            file_get_contents($this->url)
-        )->ip;
+        $response = $this->httpClient->get($this->url);
+        $contents = $response->getBody()->getContents();
+
+        $this->proxy = \GuzzleHttp\json_decode($contents)->ip;
     }
 }
